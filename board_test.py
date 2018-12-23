@@ -97,6 +97,9 @@ def test_Choice_ordering():
     assert min(choices) == human_choice
 
 def test_Minimax_game_incomplete():
+    """
+        This case should be complete in one step by the machine
+    """
     game = Game(list("_O_"
                      "OX_"
                      "XOX"))
