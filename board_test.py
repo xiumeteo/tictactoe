@@ -65,6 +65,18 @@ def test_Game_determine_winner_hum():
         game = Game(case)
         assert game.determine_winner() == human
 
+def test_Game_determine_winner_none():
+
+    noone_winner = [
+        list("OXO______"), list("___OXO___"), list("______XOO"),
+        list("O__X__O__"), list("_O__O__X_"), list("__O__X__O"),
+        list("X___O___O"), list("__O_O_X__")
+    ]
+
+    for case in noone_winner:
+        game = Game(case)
+        assert game.determine_winner() == noone
+
 def test_Minimax_game_almost_complete():
     game = Game(list("OX_"
                      "OXO"
