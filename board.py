@@ -1,4 +1,14 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from copy import deepcopy
+
+@dataclass
+class Player:
+    piece:str
+    value:int
+
+human = Player('O', -10)
+computer = Player('X', 10)
+draw = Player('_', 0)
 
 @dataclass 
 class InvalidMoveException(Exception):
@@ -8,16 +18,17 @@ class InvalidMoveException(Exception):
 
 @dataclass
 class Move:
-    player:str
+    player:Player
     pos:int
 
     def is_machine(self):
-        return player == 'X'
+        return self.player == computer
 
 @dataclass
 class MoveCompleted:
     status:str
-    winner:str
+    winner:Player
+    move:Move
 
 class Board:
     win_pos = {'XXX______', '___XXX___', '_____XXX', 
@@ -35,14 +46,71 @@ class Board:
             raise InvalidMoveException("Out of range move", move.pos)
         if self.board[move.pos] is not '_':
             raise InvalidMoveException("Overriding move on: " + self.board[move.pos], move.pos)
-        self.board[move.pos] = move.player
-        return MoveCompleted('continue', self.__determine_winner())
+        self.board[move.pos] = move.player.piece
+        return MoveCompleted('continue', self.determine_winner(), move)
 
-    def __determine_winner(self):
+    def is_done(self):
+        return not set(self.board).issuperset({'_'})
+
+    def determine_winner(self):
         string_board = {''.join(self.board)}
         if self.win_pos.issuperset(string_board):
-            return 'X'
+            return computer
         if self.los_pos.issuperset(string_board):
-            return 'O'
+            return human
+        return draw
 
-        return ''
+@dataclass(order=True)
+class Choice:
+    sort_index: int = field(init=False, repr=False)
+    move:MoveCompleted
+    board:Board
+
+    def __post_init__(self):
+        self.sort_index = self.move.winner.value
+
+class Minimax:
+    def __init__(self, currentBoard, currentPlayer):
+        self.currentBoard = currentBoard
+        self.current_player = currentPlayer
+
+    def do(self):
+        return self.__deep(self.currentBoard, self.current_player)
+
+    def __deep(self, currentBoard, currentPlayer):
+        if currentBoard.is_done():
+            return currentBoard.determine_winner()
+
+        #here we create the track of scores and positions
+        moves = self.next_moves(currentBoard, currentPlayer)
+        for move,board in moves:
+            moves.extend(self.__deep(board, move.player))
+
+        if self.current_player == computer:
+            #maximize
+            return max(moves)
+        else :
+            return min(moves)
+
+
+    def next_moves(self, current_board, current_player):
+        nextPlayer = self.next_player(current_player)
+
+        board = deepcopy(current_board)
+        valid_moves = []
+        for pos in range(len(board.board)):
+            piece = board.board[pos]
+            if piece == '_':
+                futureBoard = deepcopy(board)
+                move = futureBoard.move(Move(nextPlayer, pos))
+                valid_moves.append(Choice(move, futureBoard))
+
+        return valid_moves
+
+    def next_player(self, currentPlayer):
+        if currentPlayer == human:
+            nextPlayer = computer
+        else:
+            nextPlayer = human
+        return nextPlayer
+
