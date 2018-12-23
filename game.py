@@ -30,18 +30,19 @@ class MoveCompleted:
     winner:Player
     move:Move
 
-class Board:
+@dataclass
+class Game:
     win_pos = {'XXX______', '___XXX___', '_____XXX', 
             'X__X__X__', '_X__X__X_', '__X__X__X',
             'X___X___X', '__X_X_X__'}
     los_pos = {'OOO______', '___OOO___', '_____OOO', 
             'O__O__O__', '_O__O__O_', '__O__O__O',
-            'O___O___O', '__O_O_O__'}    
-
-    def __init__(self):
-         self.board = list("_________")
+            'O___O___O', '__O_O_O__'}
+    board = list("_________")
     
     def move(self, move):
+        if self.is_done():
+            return MoveCompleted('continue', self.determine_winner(), move)
         if move.pos > 8 or move.pos < 0:
             raise InvalidMoveException("Out of range move", move.pos)
         if self.board[move.pos] is not '_':
@@ -64,7 +65,7 @@ class Board:
 class Choice:
     sort_index: int = field(init=False, repr=False)
     move:MoveCompleted
-    board:Board
+    game:Game
 
     def __post_init__(self):
         self.sort_index = self.move.winner.value
@@ -78,13 +79,13 @@ class Minimax:
         return self.__deep(self.currentBoard, self.current_player)
 
     def __deep(self, currentBoard, currentPlayer):
-        if currentBoard.is_done():
-            return currentBoard.determine_winner()
-
         #here we create the track of scores and positions
         moves = self.next_moves(currentBoard, currentPlayer)
-        for move,board in moves:
-            moves.extend(self.__deep(board, move.player))
+        for choice in moves:
+            moves.extend(self.__deep(choice.game, choice.move))
+
+        if moves == []:
+            return moves
 
         if self.current_player == computer:
             #maximize
