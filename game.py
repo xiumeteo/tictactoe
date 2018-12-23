@@ -141,12 +141,12 @@ class Minimax:
         self.game = currentBoard
         self.player = currentPlayer
 
-    def do(self):
+    def get_best_choice(self):
         if self.game.is_empty():
             return Choice(MoveCompleted(noone, Move(self.player, 4)), self.game)
-        return self.__deep(self.game, self.player)
+        return self.__get_best_choice(self.game, self.player)
 
-    def __deep(self, current_board, current_player):
+    def __get_best_choice(self, current_board, current_player):
         if current_board.is_done():
             return Choice(MoveCompleted(current_board.determine_winner(), Move(current_player, 0)), current_board)
 
@@ -155,13 +155,13 @@ class Minimax:
         evaluated_choices = []
         for choice in choices:
             # deep_choice is the ultimate value of this branch
-            deep_choice = self.__deep(choice.game, self.next_player(current_player))
+            deep_choice = self.__get_best_choice(choice.game, self.next_player(current_player))
             choice.sort_index = deep_choice.sort_index
             evaluated_choices.append(choice)
 
-        return self.get_best_choice(evaluated_choices)
+        return self.get_choice_value(evaluated_choices)
 
-    def get_best_choice(self, choices):
+    def get_choice_value(self, choices):
         if self.player == computer:
             return max(choices)
         else:

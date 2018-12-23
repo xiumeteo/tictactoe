@@ -83,7 +83,7 @@ def test_Minimax_game_almost_complete():
                      "XOX"))
     print("initial game = ", game)
     minimax = Minimax(game, computer)
-    choice = minimax.do()
+    choice = minimax.get_best_choice()
     print(choice)
     assert choice.move == MoveCompleted(computer, Move(computer, 2))
 
@@ -105,7 +105,7 @@ def test_Minimax_game_incomplete():
                      "XOX"))
     #computer
     minimax = Minimax(game, computer)
-    choice = minimax.do()
+    choice = minimax.get_best_choice()
     game.move(choice.move.move_initiated)
     #human
     h_move = game.get_available_slots()[0]
@@ -122,7 +122,7 @@ def test_Minimax_game_from_zero_human_starts():
     while not game.is_done():
         if player == computer:
             minimax = Minimax(game, computer)
-            choice = minimax.do()
+            choice = minimax.get_best_choice()
             LOGGER.info(choice)
             game.move(choice.move.move_initiated)
             player = human
