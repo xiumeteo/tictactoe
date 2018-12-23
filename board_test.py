@@ -1,5 +1,10 @@
-from game import Game,Move,InvalidMoveException,MoveCompleted,human,computer,noone,Minimax,Choice
+import logging
+
 from pytest import raises
+
+from game import Game, Move, InvalidMoveException, MoveCompleted, human, computer, noone, Minimax, Choice
+
+LOGGER = logging.getLogger(__name__)
 
 def test_blank_board():
     b = Game()
@@ -61,23 +66,46 @@ def test_Choice_ordering():
     assert max(choices) == computer_choice
     assert min(choices) == human_choice
 
-def test_Minimax_game_incomplete():
-    game = Game(list("_X_"
-                     "OX_"
-                     "XOX"))
-    #human asks for move
-    minimax = Minimax(game, computer)
-    choice = minimax.do()
-    game.move(choice.move.move_initiated)
-    #human
-    h_move = game.get_available_slots()[0]
-    game.move(Move(human, h_move))
-    #computer
-    minimax = Minimax(game, computer)
-    choice = minimax.do()
-    game.move(choice.move.move_initiated)
+# def test_Minimax_game_incomplete():
+#     game = Game(list("_X_"
+#                      "OX_"
+#                      "XOX"))
+#     #human asks for move
+#     minimax = Minimax(game, computer)
+#     choice = minimax.do()
+#     game.move(choice.move.move_initiated)
+#     #human
+#     h_move = game.get_available_slots()[0]
+#     game.move(Move(human, h_move))
+#     #computer
+#     minimax = Minimax(game, computer)
+#     choice = minimax.do()
+#     game.move(choice.move.move_initiated)
+#
+#     assert game.is_done()
+#     assert game.determine_winner() == computer
+
+
+def test_Minimax_game_from_zero_human_starts():
+    LOGGER.info("Hello world")
+    game = Game(list("OO______X"))
+
+    player = computer
+    while not game.is_done():
+        if player == computer:
+            minimax = Minimax(game, computer)
+            choice = minimax.do()
+            LOGGER.info(choice)
+            game.move(choice.move.move_initiated)
+            player = human
+        else:
+            slots = game.get_available_slots()
+            if not slots: break
+            h_move = slots[0]
+            game.move(Move(human, h_move))
+            player = computer
+
+        LOGGER.info(game)
 
     assert game.is_done()
     assert game.determine_winner() == computer
-
-

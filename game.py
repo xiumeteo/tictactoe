@@ -1,6 +1,8 @@
+import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
 
+LOGGER = logging.getLogger(__name__)
 
 @dataclass
 class Player:
@@ -56,8 +58,9 @@ class Game:
             return noone.value
 
     def move(self, move):
-        if self.is_done():
-            return MoveCompleted(self.determine_winner(), move)
+        # if self.is_done():
+        #     LOGGER.error("entering to its done")
+        #     return
         if move.pos > 8 or move.pos < 0:
             raise InvalidMoveException("Out of range move", move.pos)
         if self.board[move.pos] is not '_':
@@ -67,6 +70,9 @@ class Game:
         return MoveCompleted(self.determine_winner(), move)
 
     def is_done(self):
+        winner = self.determine_winner()
+        if winner is computer or winner is human:
+            return True
         return not set(self.board).issuperset({'_'})
 
     def determine_winner(self):
@@ -108,7 +114,7 @@ class Game:
                 slots.append(i)
         return slots
 
-    def __str__(self):
+    def __repr__(self):
         return ''.join(self.board)
 
 
@@ -134,21 +140,28 @@ class Minimax:
         self.current_player = currentPlayer
 
     def do(self):
-        return self.__deep(self.currentBoard, self.current_player)[0]
+        return self.__deep(self.currentBoard, self.current_player)
 
     def __deep(self, current_board, current_player):
-        moves = self.next_moves(current_board, current_player)
-        for choice in moves:
-            moves.extend(self.__deep(choice.game, self.next_player(current_player)))
+        if current_board.is_done():
+            return Choice(MoveCompleted(current_board.determine_winner(), Move(current_player, 0)), current_board)
 
-        if not moves:
-            return moves
+        choices = self.next_moves(current_board, current_player)
 
+        evaluated_choices = []
+        for choice in choices:
+            # deep_choice is the ultimate value of this branch
+            deep_choice = self.__deep(choice.game, self.next_player(current_player))
+            choice.sort_index = deep_choice.sort_index
+            evaluated_choices.append(choice)
+
+        return self.get_best_choice(evaluated_choices)
+
+    def get_best_choice(self, choices):
         if self.current_player == computer:
-            # maximize
-            return [max(moves)]
+            return max(choices)
         else:
-            return [min(moves)]
+            return min(choices)
 
     def next_moves(self, current_board, current_player):
         board = deepcopy(current_board)
