@@ -60,9 +60,6 @@ class Game:
             return noone.value
 
     def move(self, move):
-        # if self.is_done():
-        #     LOGGER.error("entering to its done")
-        #     return
         if move.pos > 8 or move.pos < 0:
             raise InvalidMoveException("Out of range move", move.pos)
         if self.board[move.pos] is not '_':

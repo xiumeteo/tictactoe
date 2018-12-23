@@ -41,11 +41,29 @@ def test_Minimax_next_move():
     expectedMoves = {"X________" , "_X_______", "__X______", "___X_____", "____X____", "_____X___", "______X__", "_______X_", "________X"}
     assert expectedMoves == validMoves
 
-def test_Game_determine_winner():
-    game = Game(list("OXX"
-                     "OXO"
-                     "XOX"))
-    assert game.determine_winner() == computer
+def test_Game_determine_winner_comp():
+
+    computer_winner = [
+        list("XXX______"), list("___XXX___"), list("______XXX"),
+        list("X__X__X__"), list("_X__X__X_"), list("__X__X__X"),
+        list("X___X___X"), list("__X_X_X__")
+    ]
+
+    for case in computer_winner:
+        game = Game(case)
+        assert game.determine_winner() == computer
+
+def test_Game_determine_winner_hum():
+
+    human_winner = [
+        list("OOO______"), list("___OOO___"), list("______OOO"),
+        list("O__O__O__"), list("_O__O__O_"), list("__O__O__O"),
+        list("O___O___O"), list("__O_O_O__")
+    ]
+
+    for case in human_winner:
+        game = Game(case)
+        assert game.determine_winner() == human
 
 def test_Minimax_game_almost_complete():
     game = Game(list("OX_"
@@ -66,24 +84,20 @@ def test_Choice_ordering():
     assert max(choices) == computer_choice
     assert min(choices) == human_choice
 
-# def test_Minimax_game_incomplete():
-#     game = Game(list("_X_"
-#                      "OX_"
-#                      "XOX"))
-#     #human asks for move
-#     minimax = Minimax(game, computer)
-#     choice = minimax.do()
-#     game.move(choice.move.move_initiated)
-#     #human
-#     h_move = game.get_available_slots()[0]
-#     game.move(Move(human, h_move))
-#     #computer
-#     minimax = Minimax(game, computer)
-#     choice = minimax.do()
-#     game.move(choice.move.move_initiated)
-#
-#     assert game.is_done()
-#     assert game.determine_winner() == computer
+def test_Minimax_game_incomplete():
+    game = Game(list("_O_"
+                     "OX_"
+                     "XOX"))
+    #computer
+    minimax = Minimax(game, computer)
+    choice = minimax.do()
+    game.move(choice.move.move_initiated)
+    #human
+    h_move = game.get_available_slots()[0]
+    game.move(Move(human, h_move))
+
+    assert game.is_done()
+    assert game.determine_winner() == computer
 
 
 def test_Minimax_game_from_zero_human_starts():
