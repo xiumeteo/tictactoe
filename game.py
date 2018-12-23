@@ -37,9 +37,11 @@ class MoveCompleted:
 
 
 class Game:
+
     def __init__(self, board=None):
+        self.EMPTY_BOARD = "_________"
         if board is None:
-            self.board = list("_________")
+            self.board = list(self.EMPTY_BOARD)
             self.board_values = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         else:
             self.board = board
@@ -114,6 +116,9 @@ class Game:
                 slots.append(i)
         return slots
 
+    def is_empty(self):
+        return self.board == list(self.EMPTY_BOARD)
+
     def __repr__(self):
         return ''.join(self.board)
 
@@ -136,11 +141,13 @@ class Choice:
 
 class Minimax:
     def __init__(self, currentBoard, currentPlayer):
-        self.currentBoard = currentBoard
-        self.current_player = currentPlayer
+        self.game = currentBoard
+        self.player = currentPlayer
 
     def do(self):
-        return self.__deep(self.currentBoard, self.current_player)
+        if self.game.is_empty():
+            return Choice(MoveCompleted(noone, Move(self.player, 4)), self.game)
+        return self.__deep(self.game, self.player)
 
     def __deep(self, current_board, current_player):
         if current_board.is_done():
@@ -158,7 +165,7 @@ class Minimax:
         return self.get_best_choice(evaluated_choices)
 
     def get_best_choice(self, choices):
-        if self.current_player == computer:
+        if self.player == computer:
             return max(choices)
         else:
             return min(choices)

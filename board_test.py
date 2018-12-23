@@ -87,8 +87,7 @@ def test_Choice_ordering():
 
 
 def test_Minimax_game_from_zero_human_starts():
-    LOGGER.info("Hello world")
-    game = Game(list("OO______X"))
+    game = Game(list("_________"))
 
     player = computer
     while not game.is_done():
