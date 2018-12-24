@@ -1,4 +1,4 @@
-FROM ubuntu:18.10
+FROM python:3.6
 
 RUN apt-get update -y && \
     apt-get install -y python-pip python-dev
@@ -14,4 +14,4 @@ COPY . /app
 
 ENTRYPOINT [ "python" ]
 
-CMD [ "app.py" ]
+CMD [ "tictactoe.py" ]

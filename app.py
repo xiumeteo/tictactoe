@@ -2,7 +2,8 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-
+import logging
+LOGGER = logging.getLogger(__name__)
 
 
 @app.route('/tictactoe/', methods=['GET'])
@@ -17,7 +18,10 @@ def new_game():
 
 @app.route('/tictactoe/move', methods=['POST'])
 def move():
-    return 'Ok' + str(request.form['pos']) + ' Turn: ' + str(request.form['player']) + 'Board : ' + request.form['board']
+    LOGGER.info('hit!!')
+    board = 'Ok' + str(request.form['pos']) + ' Turn: ' + str(request.form['player']) + 'Board : ' + request.form[
+        'board']
+    return board
     #TODO return the move proposed based in the player
 
 

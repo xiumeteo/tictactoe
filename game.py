@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 LOGGER = logging.getLogger(__name__)
 
+
 @dataclass
 class Player:
     piece: str
@@ -51,7 +52,8 @@ class Game:
         self.winner_column_positions = [(0, 3, 6), (1, 4, 7), (2, 5, 8)]
         self.winner_diag_positions = [(0, 4, 8), (2, 4, 6)]
 
-    def __to_value(self, piece):
+    @staticmethod
+    def __to_value(piece):
         if piece == computer.piece:
             return computer.value
         if piece == human.piece:
@@ -70,7 +72,7 @@ class Game:
 
     def is_done(self):
         winner = self.determine_winner()
-        if winner is computer or winner is human:
+        if winner is not noone:
             return True
         return not set(self.board).issuperset({'_'})
 
@@ -99,7 +101,8 @@ class Game:
 
         return noone
 
-    def __check_winner(self, value):
+    @staticmethod
+    def __check_winner(value):
         if value == computer.value * 3:
             return computer
         if value == human.value * 3:
@@ -142,33 +145,24 @@ class Minimax:
         self.player = current_player
 
     def get_best_choice(self):
-        rec = 0
-        LOGGER.info("Game starting with : "+str(self.game))
         if self.game.is_empty():
             return Choice(MoveCompleted(noone, Move(self.player, 4)), self.game)
-        return self.__get_best_choice(self.game, self.player, rec)
+        return self.__get_best_choice(self.game, self.player)
 
-    def __get_best_choice(self, current_board, current_player, rec):
-        rec = rec+1
-        if current_board.is_done():
-            return Choice(MoveCompleted(current_board.determine_winner(), Move(current_player, 0)), current_board)
+    def __get_best_choice(self, current_game, current_player):
+        if current_game.is_done():
+            return Choice(MoveCompleted(current_game.determine_winner(), Move(current_player, 0)), current_game)
 
-        choices = self.next_moves(current_board, current_player)
+        valid_choices = self.next_moves(current_game, current_player)
 
-        evaluated_choices = []
-        for choice in choices:
+        weighted_choices = []
+        for choice in valid_choices:
             # deep_choice is the ultimate value of this branch
-            deep_choice = self.__get_best_choice(choice.game, self.next_player(current_player), rec)
+            deep_choice = self.__get_best_choice(choice.game, self.next_player(current_player))
             choice.sort_index = deep_choice.sort_index
-            evaluated_choices.append(choice)
+            weighted_choices.append(choice)
 
-        if rec < 5 :
-            simplechoices = list(map(lambda x: (x.sort_index, x.move.move_initiated.pos), evaluated_choices))
-            LOGGER.info("Rec = " + str(rec))
-            LOGGER.info("Player = " + str(current_player))
-            LOGGER.info(simplechoices)
-
-        return self.get_choice_value(evaluated_choices, current_player)
+        return self.get_choice_value(weighted_choices, current_player)
 
     def get_choice_value(self, choices, current_player):
         if current_player == computer:
@@ -176,21 +170,21 @@ class Minimax:
         else:
             return min(choices)
 
-    def next_moves(self, current_board, current_player):
-        board = deepcopy(current_board)
+    def next_moves(self, current_game, current_player):
+        game_level_copy = deepcopy(current_game)
         valid_moves = []
-        for pos in range(len(board.board)):
-            piece = board.board[pos]
+        for pos in range(len(game_level_copy.board)):
+            piece = game_level_copy.board[pos]
             if piece == '_':
-                futureBoard = deepcopy(board)
-                move = futureBoard.move(Move(current_player, pos))
-                valid_moves.append(Choice(move, futureBoard))
+                game_with_move = deepcopy(game_level_copy)
+                move = game_with_move.move(Move(current_player, pos))
+                valid_moves.append(Choice(move, game_with_move))
 
         return valid_moves
 
-    def next_player(self, currentPlayer):
-        if currentPlayer == human:
-            nextPlayer = computer
+    def next_player(self, current_player):
+        if current_player == human:
+            next_player = computer
         else:
-            nextPlayer = human
-        return nextPlayer
+            next_player = human
+        return next_player
