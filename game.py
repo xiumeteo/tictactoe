@@ -137,16 +137,19 @@ class Choice:
 
 
 class Minimax:
-    def __init__(self, currentBoard, currentPlayer):
-        self.game = currentBoard
-        self.player = currentPlayer
+    def __init__(self, current_board, current_player):
+        self.game = current_board
+        self.player = current_player
 
     def get_best_choice(self):
+        rec = 0
+        LOGGER.info("Game starting with : "+str(self.game))
         if self.game.is_empty():
             return Choice(MoveCompleted(noone, Move(self.player, 4)), self.game)
-        return self.__get_best_choice(self.game, self.player)
+        return self.__get_best_choice(self.game, self.player, rec)
 
-    def __get_best_choice(self, current_board, current_player):
+    def __get_best_choice(self, current_board, current_player, rec):
+        rec = rec+1
         if current_board.is_done():
             return Choice(MoveCompleted(current_board.determine_winner(), Move(current_player, 0)), current_board)
 
@@ -155,14 +158,20 @@ class Minimax:
         evaluated_choices = []
         for choice in choices:
             # deep_choice is the ultimate value of this branch
-            deep_choice = self.__get_best_choice(choice.game, self.next_player(current_player))
+            deep_choice = self.__get_best_choice(choice.game, self.next_player(current_player), rec)
             choice.sort_index = deep_choice.sort_index
             evaluated_choices.append(choice)
 
-        return self.get_choice_value(evaluated_choices)
+        if rec < 5 :
+            simplechoices = list(map(lambda x: (x.sort_index, x.move.move_initiated.pos), evaluated_choices))
+            LOGGER.info("Rec = " + str(rec))
+            LOGGER.info("Player = " + str(current_player))
+            LOGGER.info(simplechoices)
 
-    def get_choice_value(self, choices):
-        if self.player == computer:
+        return self.get_choice_value(evaluated_choices, current_player)
+
+    def get_choice_value(self, choices, current_player):
+        if current_player == computer:
             return max(choices)
         else:
             return min(choices)
