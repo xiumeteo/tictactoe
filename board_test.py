@@ -114,12 +114,36 @@ def test_Minimax_game_incomplete():
     assert game.is_done()
     assert game.determine_winner() == computer
 
+#
+# def test_Minimax_game_from_zero_human_starts():
+#     game = Game(list("_________"))
+#
+#     player = computer
+#     while not game.is_done():
+#         if player == computer:
+#             minimax = Minimax(game, computer)
+#             choice = minimax.get_best_choice()
+#             LOGGER.info(choice)
+#             game.move(choice.move.move_initiated)
+#             player = human
+#         else:
+#             slots = game.get_available_slots()
+#             if not slots: break
+#             h_move = slots[0]
+#             game.move(Move(human, h_move))
+#             player = computer
+#
+#         LOGGER.info(game)
+#
+#     assert game.is_done()
+#     assert game.determine_winner() == computer
 
-def test_Minimax_game_from_zero_human_starts():
+
+def test_Minimax_game_from_zero_smart_human():
     game = Game(list("_________"))
-
-    player = computer
-    while not game.is_done():
+    human_moves = [4, 6, 2]
+    player = human
+    while human_moves:
         if player == computer:
             minimax = Minimax(game, computer)
             choice = minimax.get_best_choice()
@@ -127,9 +151,7 @@ def test_Minimax_game_from_zero_human_starts():
             game.move(choice.move.move_initiated)
             player = human
         else:
-            slots = game.get_available_slots()
-            if not slots: break
-            h_move = slots[0]
+            h_move = human_moves.pop()
             game.move(Move(human, h_move))
             player = computer
 
