@@ -21,26 +21,36 @@ class Board extends React.Component {
 
     handleClick(index) {
         const squares = this.state.squares.slice();
-        if (this.state.xIsNext) {
+        squares[index] = this.getPlayerValue();
+        this.setState({
+                squares: squares,
+                xIsNext: this.state.xIsNext
+            }
+        );
+
+        if (!this.state.xIsNext) {
             let request = new XMLHttpRequest();
             request.open('POST', 'http://localhost:5000/tictactoe/move', true);
+            let that = this;
             request.onload = function () {
-                console.log(this.response);
+                let move = JSON.parse(this.response);
+                squares[move.pos] = 'X';
+                that.setState({
+                        squares: squares,
+                        xIsNext: false
+                    }
+                );
             };
 
             let data = new FormData();
             data.append('pos', index);
             data.append('player', 'X');
-            data.append('board', this.state.squares.join(''));
+            let board = squares.join('');
+            console.log(board);
+            data.append('board', board);
             request.send(data);
 
         }
-        squares[index] = this.getPlayerValue();
-        this.setState({
-                squares: squares,
-                xIsNext: !this.state.xIsNext
-            }
-        );
 
 
     }

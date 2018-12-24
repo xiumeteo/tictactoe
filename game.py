@@ -140,8 +140,8 @@ class Choice:
 
 
 class Minimax:
-    def __init__(self, current_board, current_player):
-        self.game = current_board
+    def __init__(self, current_game, current_player):
+        self.game = current_game
         self.player = current_player
 
     def get_best_choice(self):
