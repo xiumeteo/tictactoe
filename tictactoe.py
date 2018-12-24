@@ -47,10 +47,11 @@ class UiBoard:
         for i, item in enumerate(self.ui_board):
             if item is computer.piece:
                 value = value + bcolors.WARNING + str(item) + bcolors.ENDC + " \t"
-            if item is human.piece:
+            elif item is human.piece:
                 value = value + bcolors.OKBLUE + str(item) + bcolors.ENDC + " \t"
             else:
                 value = value + str(item) + " \t"
+
             if i is 2 or i is 5 or i is 8:
                 value = value + "\n"
         return value
