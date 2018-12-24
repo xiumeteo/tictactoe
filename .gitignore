@@ -111,7 +111,6 @@ venv.bak/
 
 .board.py.swp
 .idea/
-app.py
 bin/
 include/
 pip-selfcheck.json
