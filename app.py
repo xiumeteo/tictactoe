@@ -1,6 +1,5 @@
-import os
-
 from flask import Flask, request, send_from_directory, jsonify
+
 from game import Minimax, Game, computer, Move
 
 app = Flask(__name__, static_folder='tictactoe-react/build')
@@ -28,16 +27,20 @@ def new_game():
 def move():
     LOGGER.info('hit!!')
 
-    pos = request.form['pos']
     board = request.form['board']
     print(board)
     game = Game(list(board))
     print(game)
     choice = Minimax(game, computer).get_best_choice()
 
+    pos = choice.move.move_initiated.pos
+    if not game.is_done():
+        game.move(Move(computer, pos))
+
     response = {
-        "pos" : choice.move.move_initiated.pos,
-        #TODO message
+        "pos": pos,
+        "end": game.is_done(),
+        "winner": game.determine_winner().piece
     }
 
     return jsonify(response)

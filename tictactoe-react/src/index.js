@@ -40,6 +40,19 @@ class Board extends React.Component {
                         xIsNext: false
                     }
                 );
+                if (move.end) {
+                    if (move.winner === 'X') {
+                        alert("Computer will always win!");
+                    }
+                    if (move.winner === 'O') {
+                        alert("Humans win this time, there must be an error on my program!");
+                    }
+                    if (move.winner === '_') {
+                        alert("Good match!");
+                    }
+
+
+                }
             };
 
             let data = new FormData();
