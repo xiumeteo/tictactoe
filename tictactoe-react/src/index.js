@@ -30,7 +30,7 @@ class Board extends React.Component {
 
         if (!this.state.xIsNext) {
             let request = new XMLHttpRequest();
-            request.open('POST', 'http://localhost:5000/tictactoe/move', true);
+            request.open('POST', 'http://0.0.0.0:5000/tictactoe/move', true);
             let that = this;
             request.onload = function () {
                 let move = JSON.parse(this.response);
