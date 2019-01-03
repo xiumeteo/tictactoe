@@ -1,13 +1,23 @@
-from flask import Flask, request
+#!/usr/bin/env python3
 
-app = Flask(__name__)
+from flask import Flask, request, send_from_directory, jsonify
+
+from game import Minimax, Game, computer, Move
+
+app = Flask(__name__, static_folder='tictactoe-react/build')
+
+import logging
+LOGGER = logging.getLogger(__name__)
+
+@app.route('/static', defaults={'path': ''})
+@app.route('/static/<path:path>')
+def serve_static(path):
+    return send_from_directory('tictactoe-react/build/static/', path)
 
 
-
-
-@app.route('/tictactoe/', methods=['GET'])
-def hello_world():
-    return 'Welcome to tictactoe'
+@app.route('/tictactoe')
+def serve():
+    return send_from_directory('tictactoe-react/build/', 'index.html')
 
 
 @app.route('/tictactoe/new', methods=['GET'])
@@ -17,8 +27,25 @@ def new_game():
 
 @app.route('/tictactoe/move', methods=['POST'])
 def move():
-    return 'Ok' + str(request.form['pos']) + ' Turn: ' + str(request.form['player']) + 'Board : ' + request.form['board']
-    #TODO return the move proposed based in the player
+    LOGGER.info('hit!!')
+
+    board = request.form['board']
+    print(board)
+    game = Game(list(board))
+    print(game)
+    choice = Minimax(game, computer).get_best_choice()
+
+    pos = choice.move.move_initiated.pos
+    if not game.is_done():
+        game.move(Move(computer, pos))
+
+    response = {
+        "pos": pos,
+        "end": game.is_done(),
+        "winner": game.determine_winner().piece
+    }
+
+    return jsonify(response)
 
 
 
